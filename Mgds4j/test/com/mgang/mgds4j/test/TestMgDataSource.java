@@ -8,6 +8,7 @@ import java.util.Date;
 import org.junit.Test;
 
 import com.mgang.mgds4j.core.MgDataSource;
+import com.mgang.mgds4j.core.MgDataSourceFactory;
 
 /**
  * 
@@ -19,7 +20,11 @@ public class TestMgDataSource {
 	private MgDataSource ds;
     public TestMgDataSource() {
 		// TODO Auto-generated constructor stub
-    	ds = new MgDataSource();
+    	//ds = new MgDataSource();在MgDataSource被单例后，无法实例化
+    	//创建工厂
+		MgDataSourceFactory.build();
+		//从工厂得到数据源
+		ds = MgDataSourceFactory.getMgDataSource("ds");
     }
 	/**
 	 * 测试获得数据库连接
@@ -74,6 +79,35 @@ public class TestMgDataSource {
 		System.out.println("当前连接池的总大小是:"+ds.getPoolTotalSize());
 		System.out.println("当前连接池的可用连接数是:"+ds.getCurrentPoolSize());
 	}
-	
+	@Test
+	public void testFirst(){
+		String str = "asdfgf";
+		String a = (str.charAt(0)+"").toString().toUpperCase()+str.substring(1, str.length());
+		System.out.println(a);
+	}
+	@Test
+	public void testV2_1(){
+		
+		Connection conn = ds.getConnection();
+		String sql = "insert into user(username,password,birthday) values(?,?,?)";
+		try {
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.setString(1, "v2.1");
+			ps.setString(2, "mgds4j.xml"+(int)(Math.random()*1000));
+			ps.setObject(3, new Date());
+			ps.execute();
+			ps.close();
+			ds.close(conn);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ds.desotry();
+	}
+	@Test
+	public void testClassPath(){
+		String file_str = MgDataSourceFactory.class.getResource("/").toString();
+		System.out.println(file_str.substring(6,file_str.length()));
+	}
 	
 }

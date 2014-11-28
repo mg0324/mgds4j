@@ -1,68 +1,57 @@
 package com.mgang.mgds4j.core;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 import java.util.Vector;
 
 /**
  * 
  * @author meigang 2014-11-27 22:09
  * 数据源对象使用连接池技术实现
+ * （单例模式）
  */
 public class MgDataSource {
 	//数据库驱动
-	private static String driverName;
+	private String driverName;
 	//数据库url
-	private static String url;
+	private String url;
 	//数据库用户名
-	private static String userName;
+	private String userName;
 	//数据库密码
-	private static String password;
-	//自动增长的大小
-	private static int autoIncrement;
+	private String password;
+	//自动增长的大小,默认是1
+	private int autoIncrement = 1;
 	//连接池大小 默认5个connection
-	private static int poolSize = 5;
+	private int poolSize = 5;
 	//当前连接池拥有的连接数的大小
-	private static int currentPoolLength = 5;
+	private int currentPoolLength = 5;
 	//增长次数
 	private int autoIncrementTime = 0;
 	//等待时间，默认2000毫秒，就是2秒
-	private static int waitTimeOut = 2000;
+	private int waitTimeOut = 2000;
 	//存放已经连接到数据库的connection的向量
-	private static Vector<Connection> pool = null;
-	//静态加载配置文件
-	static{
-		Properties p = new Properties();
-		try {
-			p.load(MgDataSource.class.getClassLoader().getResourceAsStream("mgds4j.properties"));
-			driverName = p.getProperty("mgds4j.driverName");
-			url = p.getProperty("mgds4j.url");
-			userName = p.getProperty("mgds4j.userName");
-			password = p.getProperty("mgds4j.password");
-			autoIncrement = Integer.parseInt(p.getProperty("mgds4j.autoIncrement").trim());
-			poolSize = Integer.parseInt(p.getProperty("mgds4j.poolSize").trim());
-			currentPoolLength = poolSize;
-			waitTimeOut = Integer.parseInt(p.getProperty("mgds4j.waitTimeOut").trim());
-			//初始化
-			initConnectionPool();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			try {
-				throw new Exception(e.getMessage()+"--加载mgds4j.properties配置文件出错，请检查是否在classpath下没有mgds4j.properties");
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-		}		
+	private Vector<Connection> pool = null;
+	
+	private static MgDataSource mgds = null;
+	
+	private MgDataSource(){
+		
+	}
+	/**
+	 * 得到MgDataSource的单例对象
+	 * @return
+	 */
+	public static MgDataSource getInstance(){
+		if(null == mgds){
+			mgds = new MgDataSource();
+		}
+		return mgds;
 	}
 	/**
 	 * 初始化连接池
 	 */
-	private static void initConnectionPool(){
+	public void initConnectionPool(){
 		pool = new Vector<Connection>();
 		//加载驱动
 		try {
@@ -91,6 +80,7 @@ public class MgDataSource {
 			}
 		}
 	}
+	
 	/**
 	 * 关闭连接池
 	 * @param conn
@@ -107,6 +97,8 @@ public class MgDataSource {
 				}
 			}
 		}
+		currentPoolLength = 0;
+		System.out.println("关闭连接池");
 		
 	}
 	/**
@@ -184,9 +176,43 @@ public class MgDataSource {
 	public void desotry() {
 		// TODO Auto-generated method stub
 		for(int i=0;i<currentPoolLength;i++){
-			close(pool.get(i));
+			try {
+				pool.get(i).close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		currentPoolLength = 0;
 		System.out.println("连接池关闭");
 	}
+
+	public void setDriverName(String driverName) {
+		this.driverName = driverName;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setAutoIncrement(int autoIncrement) {
+		this.autoIncrement = autoIncrement;
+	}
+
+	public void setPoolSize(int poolSize) {
+		this.poolSize = poolSize;
+	}
+
+	public void setWaitTimeOut(int waitTimeOut) {
+		this.waitTimeOut = waitTimeOut;
+	}
+	
 }

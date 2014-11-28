@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<factory>
+	<!-- 数据源节点，name属性是放在DataSourceFactory中的key,class属性是用来反射生成MgDataSource对象的，
+		destotry属性是关闭连接池要调用的MgDataSource的方法	
+	 -->
+	<dataSource name="ds" class="com.mgang.mgds4j.core.MgDataSource" destory="destory">
+		<!-- property节点，就是配置的MgDataSource的属性 -->
+		<property key="driverName" value="com.mysql.jdbc.Driver" type="string"></property>
+		<property key="url" type="string"
+			value="jdbc:mysql://localhost:3306/mgds4j?useUnicode=true&amp;characterEncoding=UTF-8"></property>
+		<property key="userName" value="root" type="string"></property>
+		<property key="password" value="root" type="string"></property>
+		<property key="autoIncrement" value="1" type="int"></property>
+		<property key="poolSize" value="5" type="int"></property>
+		<property key="waitTimeOut" value="3000" type="int"></property>
+	</dataSource>
+</factory>
