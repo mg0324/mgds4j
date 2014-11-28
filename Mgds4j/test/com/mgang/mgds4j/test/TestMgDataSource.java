@@ -72,7 +72,7 @@ public class TestMgDataSource {
 	}
 	private void showMsg(){
 		System.out.println("当前连接池的总大小是:"+ds.getPoolTotalSize());
-		System.out.println("当前连接池的可用连接数是:"+ds.getInPoolSize());
+		System.out.println("当前连接池的可用连接数是:"+ds.getCurrentPoolSize());
 	}
 	
 	
