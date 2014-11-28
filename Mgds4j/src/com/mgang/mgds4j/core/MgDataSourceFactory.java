@@ -51,7 +51,7 @@ public abstract class MgDataSourceFactory {
 		clazz = dsElement.attributeValue("class");
 		destory = dsElement.attributeValue("destory");
 		try {
-			//生成DataSource对象
+			//通过调用static函数getInstance来得到单例对象
 			Class dsClass = Class.forName(clazz);
 			ds = (MgDataSource) dsClass.getMethod("getInstance", null).invoke(dsClass, null);
 			factory.put(name, ds);

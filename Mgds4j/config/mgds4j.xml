@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <factory>
-	<!-- 数据源节点，name属性是放在DataSourceFactory中的key,class属性是用来反射生成MgDataSource对象的，
-		destotry属性是关闭连接池要调用的MgDataSource的方法	
+	<!-- 数据源节点，name属性是放在DataSourceFactory中的key,class属性是用来反射生成MgDataSource对象的
 	 -->
-	<dataSource name="ds" class="com.mgang.mgds4j.core.MgDataSource" destory="destory">
+	<dataSource name="ds" class="com.mgang.mgds4j.core.MgDataSource">
 		<!-- property节点，就是配置的MgDataSource的属性 -->
 		<property key="driverName" value="com.mysql.jdbc.Driver" type="string"></property>
 		<property key="url" type="string"

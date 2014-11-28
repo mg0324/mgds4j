@@ -31,4 +31,55 @@ mgds4j
 因为考虑到数据源和连接池的概念，数据源是使用连接池技术来缓存数据库连接供外使用的工具对象。<br/>
 所以，将MgDataSource.java和MgConnectionPool.java合并成一个文件MgDataSource.java.<br/>
 并测试通过。
+
+升级日志：v2.1<br/>
+1. 升级配置文件properties为xml<br/>
+2. 加入工厂模式，单例模式，使用反射来实现。<br/>
+单例模式：<br/>
+
+	private static MgDataSource mgds = null;
+	private MgDataSource(){
+		//私有的构造函数
+	}
+	/**
+	 * 得到MgDataSource的单例对象
+	 * @return
+	 */
+	public static MgDataSource getInstance(){
+		if(null == mgds){
+			mgds = new MgDataSource();
+		}
+		return mgds;
+	}
+
+工厂模式：<br/>
+
+	//创建工厂
+	MgDataSourceFactory.build();
+	//从工厂得到数据源
+	ds = MgDataSourceFactory.getMgDataSource("ds");
+
+反射机制核心：<br/>
+
+	//通过调用static函数getInstance来得到单例对象
+	Class dsClass = Class.forName(clazz);
+	ds = (MgDataSource) dsClass.getMethod("getInstance", null).invoke(dsClass, null);
+	factory.put(name, ds);
+
+	//得到dataSource下的property节点
+	Iterator ps = dsElement.elementIterator("property"); 
+	while(ps.hasNext()){
+		Element propertyElement = (Element) ps.next();
+		String key = propertyElement.attributeValue("key");
+		String value = propertyElement.attributeValue("value");
+		String type = propertyElement.attributeValue("type");
+		if(type.equals("string")){
+			Method m = MgDataSource.class.getMethod("set"+UpperFirst(key),String.class);
+			m.invoke(ds, value);
+		}else if(type.equals("int")){
+			Method m = MgDataSource.class.getMethod("set"+UpperFirst(key),int.class);
+			m.invoke(ds, Integer.parseInt(value.trim()));
+		}
+	}
+
  
