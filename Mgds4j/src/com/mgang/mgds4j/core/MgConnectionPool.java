@@ -25,12 +25,14 @@ public class MgConnectionPool {
 	private static int autoIncrement;
 	//连接池大小 默认5个connection
 	private static int poolSize = 5;
-	//存放已经连接到数据库的connection的向量
-	private static Vector<Connection> pool = null;
 	//当前连接池拥有的连接数的大小
 	private static int currentPoolLength = 5;
 	//增长次数
 	private int autoIncrementTime = 0;
+	//等待时间，默认2000毫秒，就是2秒
+	private static int waitTimeOut = 2000;
+	//存放已经连接到数据库的connection的向量
+	private static Vector<Connection> pool = null;
 	//静态加载配置文件
 	static{
 		Properties p = new Properties();
@@ -43,6 +45,7 @@ public class MgConnectionPool {
 			autoIncrement = Integer.parseInt(p.getProperty("mgds4j.autoIncrement").trim());
 			poolSize = Integer.parseInt(p.getProperty("mgds4j.poolSize").trim());
 			currentPoolLength = poolSize;
+			waitTimeOut = Integer.parseInt(p.getProperty("mgds4j.waitTimeOut").trim());
 			//初始化
 			initConnectionPool();
 		} catch (IOException e) {
@@ -115,7 +118,7 @@ public class MgConnectionPool {
 			//说明当前连接池中没有连接了,就需要按照autoIncremnt的大小来穿件数据库连接放到pool中
 			//先等个2秒,休眠2秒，等其他的操作将连接还回来可能
 			try {
-				wait(2000);
+				wait(waitTimeOut);
 				if(currentPoolLength > 0){
 					conn = pool.get(currentPoolLength-1);
 					currentPoolLength--;
