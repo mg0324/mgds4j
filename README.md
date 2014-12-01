@@ -82,4 +82,7 @@ mgds4j
 		}
 	}
 
+##2014-12-1
+1.生成javadoc文档，微调javadoc注释。<br/>
+2.export出的mgds4j-2.1.jar包放到outjar文件夹下，方便依赖使用。
  
