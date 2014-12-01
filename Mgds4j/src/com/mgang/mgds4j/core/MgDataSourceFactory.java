@@ -76,6 +76,11 @@ public abstract class MgDataSourceFactory {
 			e.printStackTrace();
 		}
 	}
+	/**
+	 * 得到MgDataSource数据源从工厂中
+	 * @param name 数据源在mgds4j.xml中配置的name
+	 * @return 返回MgDataSource数据源对象
+	 */
 	public static MgDataSource getMgDataSource(String name){
 		return factory.get(name);
 	}
@@ -87,12 +92,5 @@ public abstract class MgDataSourceFactory {
 	private static String UpperFirst(String str){
 		return (str.charAt(0)+"").toString().toUpperCase()+str.substring(1, str.length());
 	}
-	/**
-	 * 得到项目的classpath
-	 * @return
-	 */
-	private static String getClasspath(){
-		String file_str = MgDataSourceFactory.class.getResource("/").toString();
-		return file_str.substring(6,file_str.length());
-	}
+	
 }

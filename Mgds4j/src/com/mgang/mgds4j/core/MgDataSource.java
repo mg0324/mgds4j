@@ -40,7 +40,7 @@ public class MgDataSource {
 	}
 	/**
 	 * 得到MgDataSource的单例对象
-	 * @return
+	 * @return 返回唯一的MgDataSource对象
 	 */
 	public static MgDataSource getInstance(){
 		if(null == mgds){
@@ -83,7 +83,6 @@ public class MgDataSource {
 	
 	/**
 	 * 关闭连接池
-	 * @param conn
 	 */
 	public void destory(){
 		for(int i=0;i<currentPoolLength;i++){
@@ -103,7 +102,7 @@ public class MgDataSource {
 	}
 	/**
 	 * 从连接池中得到可用的连接
-	 * @return
+	 * @return 得到可用的连接
 	 */
 	public synchronized Connection getConnection(){
 		Connection conn = null;
@@ -133,6 +132,7 @@ public class MgDataSource {
 	}
 	/**
 	 * 用完了连接，就还回到pool中
+	 * @param conn 归还的数据库连接
 	 */
 	public synchronized void close(Connection conn){
 		pool.addElement(conn);
@@ -158,14 +158,14 @@ public class MgDataSource {
 	}
 	/**
 	 * 得到当前连接池拥有的连接个数
-	 * @return
+	 * @return 返回当前连接池可用的连接个数
 	 */
 	public int getCurrentPoolSize(){
 		return currentPoolLength;
 	}
 	/**
 	 * 得到连接池的总大小
-	 * @return
+	 * @return 返回连接池的总大小
 	 */
 	public int getPoolTotalSize(){
 		return poolSize + autoIncrementTime*autoIncrement;
