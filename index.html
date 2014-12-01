@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Mgds4j : 梦来梦往 自己实现的数据源与连接池工具，全称 mgang datasource for java">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Mgds4j</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/mg0324/mgds4j">View on GitHub</a>
+
+          <h1 id="project_title">Mgds4j</h1>
+          <h2 id="project_tagline">梦来梦往 自己实现的数据源与连接池工具，全称 mgang datasource for java</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/mg0324/mgds4j/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/mg0324/mgds4j/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="mgds4j" class="anchor" href="#mgds4j" aria-hidden="true"><span class="octicon octicon-link"></span></a>mgds4j</h1>
+
+<p>梦来梦往 自己实现的数据源与连接池工具，全称 mgang datasource for java</p>
+
+<h2>
+<a id="2014-12-1" class="anchor" href="#2014-12-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>2014-12-1</h2>
+
+<p>1.生成javadoc文档，微调javadoc注释。<br>
+2.export出的mgds4j-2.1.jar包放到outjar文件夹下，方便依赖使用。</p>
+
+<h2>
+<a id="2014-11-28" class="anchor" href="#2014-11-28" aria-hidden="true"><span class="octicon octicon-link"></span></a>2014-11-28</h2>
+
+<p>升级日志：v1.1<br>
+1. 将等待时间抽出到配置文件中，默认是2000毫秒。<br></p>
+
+<p>升级日志：v2.0<br>
+因为考虑到数据源和连接池的概念，数据源是使用连接池技术来缓存数据库连接供外使用的工具对象。<br>
+所以，将MgDataSource.java和MgConnectionPool.java合并成一个文件MgDataSource.java.<br>
+并测试通过。</p>
+
+<p>升级日志：v2.1<br>
+1. 升级配置文件properties为xml<br>
+2. 加入工厂模式，单例模式，使用反射来实现。<br>
+单例模式：<br></p>
+
+<pre><code>private static MgDataSource mgds = null;
+private MgDataSource(){
+    //私有的构造函数
+}
+/**
+ * 得到MgDataSource的单例对象
+ * @return
+ */
+public static MgDataSource getInstance(){
+    if(null == mgds){
+        mgds = new MgDataSource();
+    }
+    return mgds;
+}
+</code></pre>
+
+<p>工厂模式：<br></p>
+
+<pre><code>//创建工厂
+MgDataSourceFactory.build();
+//从工厂得到数据源
+ds = MgDataSourceFactory.getMgDataSource("ds");
+</code></pre>
+
+<p>反射机制核心：<br></p>
+
+<pre><code>//通过调用static函数getInstance来得到单例对象
+Class dsClass = Class.forName(clazz);
+ds = (MgDataSource) dsClass.getMethod("getInstance", null).invoke(dsClass, null);
+factory.put(name, ds);
+
+//得到dataSource下的property节点
+Iterator ps = dsElement.elementIterator("property"); 
+while(ps.hasNext()){
+    Element propertyElement = (Element) ps.next();
+    String key = propertyElement.attributeValue("key");
+    String value = propertyElement.attributeValue("value");
+    String type = propertyElement.attributeValue("type");
+    if(type.equals("string")){
+        Method m = MgDataSource.class.getMethod("set"+UpperFirst(key),String.class);
+        m.invoke(ds, value);
+    }else if(type.equals("int")){
+        Method m = MgDataSource.class.getMethod("set"+UpperFirst(key),int.class);
+        m.invoke(ds, Integer.parseInt(value.trim()));
+    }
+}
+</code></pre>
+
+<h2>
+<a id="2014-11-27" class="anchor" href="#2014-11-27" aria-hidden="true"><span class="octicon octicon-link"></span></a>2014-11-27</h2>
+
+<p>今天我本来是解决struts2参数传递有时候会出现null的问题的，但是没想在此过程中碰到了45s问题和<br>
+数据库连接connection refused的问题。然后，和这两个问题一较劲，我就来解决这边了。<br></p>
+
+<p>还好的是，都有了一定的突破。<br>
+45s问题已在网上找到解决方法，但是我还是会在我的网易博客中来写到的。<br>
+第二个问题就是数据库的连接问题了，查了一些资料，发现可能是数据源的问题，然后我就来到了数据源<br>
+与连接池的对面。<br></p>
+
+<p>也成功的使用了常用的数据源dbcp和c3p0这两个。<br>
+然后，我就想到了自己来写这样一个数据源，利用连接池技术。当然可能做不到像dbcp和c3p0这样的成<br>熟技术好用。但是，我还是会自己去实现一番，就算自己以后还是用专业的数据源，这样做了也是一种进步。<br></p>
+
+<p>如此，mgds4j这个项目也就诞生了。</p>
+
+<hr>
+
+<p>今天算是我完成的1.0版本。<br>
+1. 实现连接池缓存数据库连接<br>
+2. 数据源得到连接，归还连接<br>
+3. 当无可用连接，按一定的长度自动增长连接池<br></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Mgds4j maintained by <a href="https://github.com/mg0324">mg0324</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
